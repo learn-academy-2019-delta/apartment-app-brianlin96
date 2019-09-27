@@ -2,9 +2,10 @@ import React from "react"
 import PropTypes from "prop-types"
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
-import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
-import {getApartments} from './api'
-import Apartment from '/Apartment'
+import { BrowserRouter as Router, Switch, Route, Redirect, Link } from 'react-router-dom'
+import { getApartments } from './api/index'
+import Apartments from './Apartments'
+import Apartment from './Apartment'
 
 class MainApp extends React.Component {
   constructor(props){
@@ -12,28 +13,25 @@ class MainApp extends React.Component {
     this.state = {
       apartments: []
     }
-    this.getApartments()
+  }
+
+  componentDidMount() {
+    getApartments()
+    .then((apartments)=>{
+      this.setState({apartments: apartments})
+    })
   }
 
   render () {
     return (
       <React.Fragment>
         <Router>
-        {this.state.apartments.map((apartment, index)=>{
-          return (
-            <Link to={`/apartments/${apartment.id}`}><Card key={index} style={{ width: '18rem' }}>
-              <Card.Img variant="top" src="holder.js/100px180" />
-              <Card.Body>
-                <Card.Title>{apartment.address}</Card.Title>
-                <Card.Text>
-                  {apartment.name}
-                </Card.Text>
-                <Button variant="primary">Go somewhere</Button>
-              </Card.Body>
-            </Card></Link>
-        )})}
+          <Switch>
+            <Route exact path='/apartments/:id' component={Apartment} />
+            <Route exact path='/apartments' render={(props)=><Apartments {...props} apartments={this.state.apartments}/>} /> 
+          </Switch>
         </Router>
-        <Route path='/apartments/:id' component={Apartment} />
+        
       </React.Fragment>
     );
   }
